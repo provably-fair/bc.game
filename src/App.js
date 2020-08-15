@@ -3,6 +3,7 @@ import { Form, Media, Button, Alert, Row } from 'react-bootstrap';
 import { roll } from './Games/dice.js';
 import { getRoll } from './Games/hashdice.js';
 import { handlePlinko } from './Games/plinko.js';
+import { handleLimbo } from './Games/limbo.js';
 import './App.css';
 
 class App extends React.Component {
@@ -17,13 +18,14 @@ class App extends React.Component {
       classicDice: true,
       hashDice: false,
       validated: false,
-      plinko: false
+      plinko: false,
+      limbo: false
     }
   }
 
   handleSubmit = (event) => {
 
-    const { ServerSeed, ClientSeed, Nonce, classicDice, hashDice, plinko } = this.state;
+    const { ServerSeed, ClientSeed, Nonce, classicDice, hashDice, plinko, limbo } = this.state;
 
     const form = event.currentTarget;
     if (form.checkValidity() === false || ServerSeed === '' || ClientSeed === '') {
@@ -33,16 +35,18 @@ class App extends React.Component {
     }
     else
       this.setState({
-        result: classicDice ? roll(`${ServerSeed}:${ClientSeed}:${Nonce}`) :
-          hashDice ? getRoll(`${ServerSeed}${ClientSeed}${Nonce}`) :
-            plinko ? handlePlinko(ServerSeed, ClientSeed, Nonce) : 0,
+        result: classicDice ? roll(`${ServerSeed}:${ClientSeed}:${Nonce}`)
+          : hashDice ? getRoll(`${ServerSeed}${ClientSeed}${Nonce}`)
+            : plinko ? handlePlinko(ServerSeed, ClientSeed, Nonce)
+              : limbo ? handleLimbo(`${ServerSeed}:${ClientSeed}:${Nonce}`)
+                : 0,
         showResult: true,
         validated: true
       })
   }
 
   render() {
-    const { ServerSeed, ClientSeed, Nonce, result, showResult, classicDice, hashDice, plinko, validated } = this.state;
+    const { ServerSeed, ClientSeed, Nonce, result, showResult, classicDice, hashDice, plinko, limbo, validated } = this.state;
     return (
       <div className="container pt-5">
         <Media>
@@ -61,7 +65,7 @@ class App extends React.Component {
         <Row className="mt-3 ml-3">
           <Button variant={classicDice ? 'primary' : 'light'} onClick={() => {
             this.setState({
-              classicDice: true, hashDice: false, plinko: false, showResult: false, ServerSeed: '',
+              classicDice: true, hashDice: false, plinko: false, limbo: false, showResult: false, ServerSeed: '',
               ClientSeed: '', Nonce: 0, validated: false
             })
           }} >
@@ -69,7 +73,7 @@ class App extends React.Component {
             </Button>
           <Button variant={hashDice ? 'primary' : 'light'} className="ml-2" onClick={() => {
             this.setState({
-              hashDice: true, classicDice: false, plinko: false, showResult: false, ServerSeed: '',
+              hashDice: true, classicDice: false, plinko: false, limbo: false, showResult: false, ServerSeed: '',
               ClientSeed: '', Nonce: 0, validated: false
             })
           }} >
@@ -77,11 +81,19 @@ class App extends React.Component {
             </Button>
           <Button variant={plinko ? 'primary' : 'light'} className="ml-2" onClick={() => {
             this.setState({
-              hashDice: false, classicDice: false, plinko: true, showResult: false, ServerSeed: '',
+              hashDice: false, classicDice: false, plinko: true, limbo: false, showResult: false, ServerSeed: '',
               ClientSeed: '', Nonce: 0, validated: false
             })
           }} >
             Plinko
+            </Button>
+          <Button variant={limbo ? 'primary' : 'light'} className="ml-2" onClick={() => {
+            this.setState({
+              hashDice: false, classicDice: false, plinko: false, limbo: true, showResult: false, ServerSeed: '',
+              ClientSeed: '', Nonce: 0, validated: false
+            })
+          }} >
+            Limbo
             </Button>
         </Row>
         <Form className="mt-5 col-md-5" noValidate validated={validated} >
