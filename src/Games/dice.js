@@ -22,6 +22,5 @@ export function roll(data) {
     compute = compute.split('.');
     compute[1] = compute[1].slice(0, 2);
     compute = compute[0] + '.' + compute[1];
-    console.log("LUCKY : ", compute);
     return compute;
 };
