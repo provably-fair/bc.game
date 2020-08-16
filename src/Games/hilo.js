@@ -54,13 +54,19 @@ function nums_to_card_array(nums) {
 
 export function handleHilo(server_seed, client_seed, nonce, round) {
 
-    let nums = [];
-    for (const [index, value] of bytes_to_num_array(bytes(`${server_seed}:${client_seed}:${nonce}:${round}`)).entries()) {
-        nums.push(value);
+    let totalNums = [];
+    for (let round = 0; round < 24; round++) {
+        let nums = [];
+        for (const [index, value] of bytes_to_num_array(bytes(`${server_seed}:${client_seed}:${nonce}:${round}`)).entries()) {
+            nums.push(value);
+        }
+        totalNums.push(nums[0]);
     }
-    nums = nums_to_card_array(nums);
-    console.log("Hilo : ", nums);
-    return nums[0];
+
+    totalNums = nums_to_card_array(totalNums);
+    console.log("Hilo : ", totalNums);
+
+    return totalNums;
 }
 
 

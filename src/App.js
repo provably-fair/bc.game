@@ -140,17 +140,20 @@ class App extends React.Component {
               <Button variant="primary" type="button" onClick={this.handleSubmit}>
                 Submit
         </Button>
-              {showResult && validated && <Alert className="mt-3" variant="success">
+              {showResult && validated && !hilo && <Alert className="mt-3" variant="success">
                 The result is : {result} !
         </Alert>
               }
             </Form>
           </Col>
-          <Col>
-            {result && hilo ? <div style={{ margin: '40%' }}>
-              <h5>HILO CARD</h5>
-              <img src={require('./cards-png/' + result + '.png')} alt={result} />
-            </div> : ''}
+          <Col><div style={{ margin: '26%' }}>
+
+          </div>
+            {result && hilo ? <h5>Hilo Cards</h5> : ''}
+            {result && hilo ? result.map((card, i) => {
+              return <img width="15%" key={i} src={require('./cards-png/' + card + '.png')} alt={result} />;
+            })
+              : ''}
           </Col>
         </Row>
       </div >
