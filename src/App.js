@@ -1,9 +1,10 @@
 import React from 'react';
-import { Form, Media, Button, Alert, Row } from 'react-bootstrap';
+import { Form, Media, Button, Alert, Row, Col } from 'react-bootstrap';
 import { roll } from './Games/dice.js';
 import { getRoll } from './Games/hashdice.js';
 import { handlePlinko } from './Games/plinko.js';
 import { handleLimbo } from './Games/limbo.js';
+import { handleHilo } from './Games/hilo.js';
 import './App.css';
 
 class App extends React.Component {
@@ -19,13 +20,15 @@ class App extends React.Component {
       hashDice: false,
       validated: false,
       plinko: false,
-      limbo: false
+      limbo: false,
+      hilo: false,
+      round: 0
     }
   }
 
   handleSubmit = (event) => {
 
-    const { ServerSeed, ClientSeed, Nonce, classicDice, hashDice, plinko, limbo } = this.state;
+    const { ServerSeed, ClientSeed, Nonce, classicDice, hashDice, plinko, limbo, hilo, round } = this.state;
 
     const form = event.currentTarget;
     if (form.checkValidity() === false || ServerSeed === '' || ClientSeed === '') {
@@ -39,99 +42,117 @@ class App extends React.Component {
           : hashDice ? getRoll(`${ServerSeed}${ClientSeed}${Nonce}`)
             : plinko ? handlePlinko(ServerSeed, ClientSeed, Nonce)
               : limbo ? handleLimbo(`${ServerSeed}:${ClientSeed}:${Nonce}`)
-                : 0,
+                : hilo ? handleHilo(ServerSeed, ClientSeed, Nonce, round)
+                  : 0,
         showResult: true,
         validated: true
       })
   }
 
   render() {
-    const { ServerSeed, ClientSeed, Nonce, result, showResult, classicDice, hashDice, plinko, limbo, validated } = this.state;
+    const { ServerSeed, ClientSeed, Nonce, result, showResult, classicDice, hashDice, plinko, limbo, hilo, validated } = this.state;
     return (
       <div className="container pt-5">
-        <Media>
-          <img
-            width={128}
-            height={128}
-            className="mr-3"
-            src="logo192.png"
-            alt="Generic placeholder"
-          />
-          <Media.Body>
-            <br /><br />
-            <h5>Provably Fair Verify Tool (BC.GAME)</h5>
-          </Media.Body>
-        </Media>
-        <Row className="mt-3 ml-3">
-          <Button variant={classicDice ? 'primary' : 'light'} onClick={() => {
-            this.setState({
-              classicDice: true, hashDice: false, plinko: false, limbo: false, showResult: false, ServerSeed: '',
-              ClientSeed: '', Nonce: 0, validated: false
-            })
-          }} >
-            Classic Dice
+        <Row>
+          <Col>
+            <Media>
+              <img
+                width={128}
+                height={128}
+                className="mr-3"
+                src="logo192.png"
+                alt="Bc.Game"
+              />
+              <Media.Body>
+                <br /><br />
+                <h5>Provably Fair Verify Tool (BC.GAME)</h5>
+              </Media.Body>
+            </Media>
+            <Row className="mt-3 ml-3">
+              <Button variant={classicDice ? 'primary' : 'light'} onClick={() => {
+                this.setState({
+                  classicDice: true, hashDice: false, plinko: false, limbo: false, hilo: false,
+                  showResult: false, ServerSeed: '', ClientSeed: '', Nonce: 0, validated: false
+                })
+              }} >
+                Classic Dice
             </Button>
-          <Button variant={hashDice ? 'primary' : 'light'} className="ml-2" onClick={() => {
-            this.setState({
-              hashDice: true, classicDice: false, plinko: false, limbo: false, showResult: false, ServerSeed: '',
-              ClientSeed: '', Nonce: 0, validated: false
-            })
-          }} >
-            Hash Dice
+              <Button variant={hashDice ? 'primary' : 'light'} className="ml-2" onClick={() => {
+                this.setState({
+                  hashDice: true, classicDice: false, plinko: false, limbo: false, hilo: false,
+                  showResult: false, ServerSeed: '', ClientSeed: '', Nonce: 0, validated: false
+                })
+              }} >
+                Hash Dice
             </Button>
-          <Button variant={plinko ? 'primary' : 'light'} className="ml-2" onClick={() => {
-            this.setState({
-              hashDice: false, classicDice: false, plinko: true, limbo: false, showResult: false, ServerSeed: '',
-              ClientSeed: '', Nonce: 0, validated: false
-            })
-          }} >
-            Plinko
+              <Button variant={plinko ? 'primary' : 'light'} className="ml-2" onClick={() => {
+                this.setState({
+                  hashDice: false, classicDice: false, plinko: true, limbo: false, hilo: false,
+                  showResult: false, ServerSeed: '', ClientSeed: '', Nonce: 0, validated: false
+                })
+              }} >
+                Plinko
             </Button>
-          <Button variant={limbo ? 'primary' : 'light'} className="ml-2" onClick={() => {
-            this.setState({
-              hashDice: false, classicDice: false, plinko: false, limbo: true, showResult: false, ServerSeed: '',
-              ClientSeed: '', Nonce: 0, validated: false
-            })
-          }} >
-            Limbo
+              <Button variant={limbo ? 'primary' : 'light'} className="ml-2" onClick={() => {
+                this.setState({
+                  hashDice: false, classicDice: false, plinko: false, limbo: true, hilo: false,
+                  showResult: false, ServerSeed: '', ClientSeed: '', Nonce: 0, validated: false
+                })
+              }} >
+                Limbo
             </Button>
-        </Row>
-        <Form className="mt-5 col-md-5" noValidate validated={validated} >
-          <Form.Group controlId="formBasicServerSeed">
-            <Form.Label>Server Seed</Form.Label>
-            <Form.Control type="text" required placeholder="Enter Server Seed" value={ServerSeed} onChange={(e) => {
-              this.setState({ ServerSeed: e.target.value })
-            }} />
-            <Form.Control.Feedback type="invalid">
-              Please provide a valid Server Seed.
+              <Button variant={hilo ? 'primary' : 'light'} className="ml-2" onClick={() => {
+                this.setState({
+                  hashDice: false, classicDice: false, plinko: false, limbo: false, hilo: true,
+                  result: 0, showResult: false, ServerSeed: '', ClientSeed: '', Nonce: 0, validated: false
+                })
+              }} >
+                Hilo
+            </Button>
+            </Row>
+            <Form className="mt-5" noValidate validated={validated} >
+              <Form.Group controlId="formBasicServerSeed">
+                <Form.Label>Server Seed</Form.Label>
+                <Form.Control type="text" required placeholder="Enter Server Seed" value={ServerSeed} onChange={(e) => {
+                  this.setState({ ServerSeed: e.target.value })
+                }} />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid Server Seed.
           </Form.Control.Feedback>
-          </Form.Group>
+              </Form.Group>
 
-          <Form.Group controlId="formBasicClientSeed">
-            <Form.Label>Client Seed</Form.Label>
-            <Form.Control type="text" required placeholder="Enter Client Seed" value={ClientSeed} onChange={(e) => {
-              this.setState({ ClientSeed: e.target.value })
-            }} />
-            <Form.Control.Feedback type="invalid">
-              Please provide a valid Client Seed.
+              <Form.Group controlId="formBasicClientSeed">
+                <Form.Label>Client Seed</Form.Label>
+                <Form.Control type="text" required placeholder="Enter Client Seed" value={ClientSeed} onChange={(e) => {
+                  this.setState({ ClientSeed: e.target.value })
+                }} />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid Client Seed.
           </Form.Control.Feedback>
-          </Form.Group>
+              </Form.Group>
 
-          <Form.Group controlId="formBasicNonce">
-            <Form.Label>Nonce</Form.Label>
-            <Form.Control type="number" required placeholder="Nonce" value={Nonce} onChange={(e) => {
-              this.setState({ Nonce: e.target.value })
-            }} />
-          </Form.Group>
-          <Button variant="primary" type="button" onClick={this.handleSubmit}>
-            Submit
+              <Form.Group controlId="formBasicNonce">
+                <Form.Label>Nonce</Form.Label>
+                <Form.Control type="number" required placeholder="Nonce" value={Nonce} onChange={(e) => {
+                  this.setState({ Nonce: e.target.value })
+                }} />
+              </Form.Group>
+              <Button variant="primary" type="button" onClick={this.handleSubmit}>
+                Submit
         </Button>
-          {showResult && validated && <Alert className="mt-3" variant="success">
-            The result is : {result} !
+              {showResult && validated && <Alert className="mt-3" variant="success">
+                The result is : {result} !
         </Alert>
-          }
-        </Form>
-
+              }
+            </Form>
+          </Col>
+          <Col>
+            {result && hilo ? <div style={{ margin: '40%' }}>
+              <h5>HILO CARD</h5>
+              <img src={require('./cards-png/' + result + '.png')} alt={result} />
+            </div> : ''}
+          </Col>
+        </Row>
       </div >
     );
   }
